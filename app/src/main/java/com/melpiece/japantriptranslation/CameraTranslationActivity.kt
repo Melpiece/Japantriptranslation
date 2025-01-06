@@ -18,20 +18,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.melpiece.japantriptranslation.ui.theme.JapantriptranslationTheme
 
-class CameraTranslationActivity:ComponentActivity() {
+class CameraTranslationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             JapantriptranslationTheme {
-                CameraTranslationScreen(
-                    onBackClick = {finish()}
-                )
+                CameraTranslationScreen()
             }
         }
     }
 }
+
 @Composable
-fun CameraTranslationScreen(onBackClick: () -> Unit) {
+fun CameraTranslationScreen() {
     val context = LocalContext.current
     Column(
         modifier = Modifier
