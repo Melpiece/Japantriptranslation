@@ -2,6 +2,7 @@ package com.melpiece.japantriptranslation
 
 import android.app.Activity
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.TranslatorOptions
 import com.melpiece.japantriptranslation.ui.theme.JapantriptranslationTheme
+import java.util.Locale
 
 class TranslationActivity:ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +44,13 @@ class TranslationActivity:ComponentActivity() {
 @Composable
 fun TranslationScreen(){
     val context = LocalContext.current
+    val tts = remember {
+        TextToSpeech(context) { status ->
+            if (status != TextToSpeech.SUCCESS) {
+                // Handle initialization error.
+            }
+        }
+    }
     var sourceLanguage by remember { mutableStateOf(TranslateLanguage.KOREAN) }
     var targetLanguage by remember { mutableStateOf(TranslateLanguage.JAPANESE) }
     val koEnTranslator = remember(sourceLanguage, targetLanguage) {
@@ -90,6 +99,19 @@ fun TranslationScreen(){
             Text("번역")
         }
         Text("번역 : $newText")
+        Button(
+            onClick = {
+                tts.language = if (targetLanguage == TranslateLanguage.JAPANESE) {
+                    Locale.JAPANESE
+                } else {
+                    Locale.KOREAN
+                }
+                tts.speak(newText, TextToSpeech.QUEUE_FLUSH, null, null)
+            },
+            enabled = newText.isNotBlank()
+        ) {
+            Text("번역 결과 읽기")
+        }
         Button(
             onClick = {
                 // Swap source and target languages
