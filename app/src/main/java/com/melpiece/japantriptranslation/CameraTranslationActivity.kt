@@ -2,28 +2,22 @@ package com.melpiece.japantriptranslation
 
 import android.Manifest
 import android.app.Activity
-import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.Preview
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -39,18 +33,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.google.mlkit.nl.translate.TranslateLanguage
+import com.google.mlkit.nl.translate.Translation
+import com.google.mlkit.nl.translate.TranslatorOptions
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 import com.melpiece.japantriptranslation.ui.theme.JapantriptranslationTheme
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
-import java.io.ByteArrayOutputStream
 
 class CameraTranslationActivity : ComponentActivity() {
     private val cameraPermissionRequest =
@@ -102,20 +99,29 @@ fun CameraTranslationScreen() {
     val previewView = remember {
         PreviewView(context)
     }
-    val cameraxSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+    val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
     val imageCapture = remember {
         ImageCapture.Builder().build()
     }
     val recognizer = remember {
         TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build())
     }
+    val sourceLanguage by remember { mutableStateOf(TranslateLanguage.JAPANESE) }
+    val targetLanguage by remember { mutableStateOf(TranslateLanguage.KOREAN) }
+    val translator = remember(sourceLanguage, targetLanguage) {
+        val options = TranslatorOptions.Builder()
+            .setSourceLanguage(sourceLanguage)
+            .setTargetLanguage(targetLanguage)
+            .build()
 
-    var recognizedText by remember { mutableStateOf("") }
+        Translation.getClient(options)
+    }
+    var translatedText by remember { mutableStateOf("") }
 
     LaunchedEffect(lensFacing) {
         val cameraProvider = context.getCameraProvider()
         cameraProvider.unbindAll()
-        cameraProvider.bindToLifecycle(lifecycleOwner, cameraxSelector, preview, imageCapture)
+        cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, imageCapture)
         preview.setSurfaceProvider(previewView.surfaceProvider)
     }
     Box(
@@ -124,20 +130,23 @@ fun CameraTranslationScreen() {
             .fillMaxSize()
     ) {
         AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             Button(
-                onClick = { captureAndRecognizeText(imageCapture, context, recognizer) { text ->
-                    recognizedText = text
-                } },
+                onClick = {
+                    captureAndTranslateText(imageCapture, context, recognizer, translator) { text ->
+                        translatedText = text
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().padding(8.dp)
             ) {
-                Text("캡처 및 텍스트 감지")
+                Text("캡처 및 번역")
             }
-            if (recognizedText.isNotEmpty()) {
-                Text("인식된 텍스트: \n$recognizedText", modifier = Modifier.padding(8.dp))
+            if (translatedText.isNotEmpty()) {
+                Text("번역된 텍스트: \n$translatedText",
+                    modifier = Modifier
+                        .padding(8.dp),
+                    color = Color.White
+                )
             }
             Button(
                 onClick = {
@@ -150,7 +159,6 @@ fun CameraTranslationScreen() {
             }
         }
     }
-
 }
 
 private suspend fun Context.getCameraProvider(): ProcessCameraProvider =
@@ -162,13 +170,13 @@ private suspend fun Context.getCameraProvider(): ProcessCameraProvider =
         }
     }
 
-private fun captureAndRecognizeText(
+private fun captureAndTranslateText(
     imageCapture: ImageCapture,
     context: Context,
     recognizer: com.google.mlkit.vision.text.TextRecognizer,
-    onTextRecognized: (String) -> Unit
+    translator: com.google.mlkit.nl.translate.Translator,
+    onTextTranslated: (String) -> Unit
 ) {
-    val outputOptions = ImageCapture.OutputFileOptions.Builder(ByteArrayOutputStream()).build()
     imageCapture.takePicture(
         ContextCompat.getMainExecutor(context),
         object : ImageCapture.OnImageCapturedCallback() {
@@ -177,10 +185,17 @@ private fun captureAndRecognizeText(
                 val inputImage = InputImage.fromBitmap(bitmap, 0)
                 recognizer.process(inputImage)
                     .addOnSuccessListener { visionText ->
-                        onTextRecognized(visionText.text)
+                        val detectedText = visionText.text
+                        translator.translate(detectedText)
+                            .addOnSuccessListener { translated ->
+                                onTextTranslated(translated)
+                            }
+                            .addOnFailureListener { e ->
+                                onTextTranslated("번역 실패: ${e.message}")
+                            }
                     }
                     .addOnFailureListener { e ->
-                        onTextRecognized("텍스트 인식 실패: ${e.message}")
+                        onTextTranslated("텍스트 감지 실패: ${e.message}")
                     }
                     .addOnCompleteListener {
                         image.close()
@@ -188,45 +203,15 @@ private fun captureAndRecognizeText(
             }
 
             override fun onError(exception: ImageCaptureException) {
-                onTextRecognized("이미지 캡처 실패: ${exception.message}")
+                onTextTranslated("이미지 캡처 실패: ${exception.message}")
             }
         }
     )
 }
 
-private fun ImageProxy.toBitmap(): Bitmap {
+private fun ImageProxy.toBitmap(): android.graphics.Bitmap {
     val buffer = planes[0].buffer
     val bytes = ByteArray(buffer.remaining())
     buffer.get(bytes)
     return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
 }
-
-
-//private fun captureImage(imageCapture: ImageCapture, context: Context) {
-//    val name = "CameraxImage.jpeg"
-//    val contentValues = ContentValues().apply {
-//        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-//        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-//            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
-//        }
-//    }
-//    val outputOptions = ImageCapture.OutputFileOptions
-//        .Builder(
-//            context.contentResolver,
-//            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-//            contentValues
-//        )
-//        .build()
-//    imageCapture.takePicture(
-//        outputOptions,
-//        ContextCompat.getMainExecutor(context),
-//        object : ImageCapture.OnImageSavedCallback {
-//            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-//                println("Successs")
-//            }
-//            override fun onError(exception: ImageCaptureException) {
-//                println("Failed $exception")
-//            }
-//        })
-//}
