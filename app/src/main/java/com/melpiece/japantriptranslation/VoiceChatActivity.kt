@@ -36,7 +36,7 @@ fun VoiceChatScreen() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "카메라 번역 화면",
+            text = "음성 대화 화면",
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
