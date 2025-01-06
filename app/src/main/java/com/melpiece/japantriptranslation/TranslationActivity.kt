@@ -9,13 +9,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -97,16 +101,28 @@ fun TranslationScreen() {
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(
-            onClick = {
-                val temp = sourceLanguage
-                sourceLanguage = targetLanguage
-                targetLanguage = temp
-                isReady = false
+        Row (modifier = Modifier
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically){
+            Text(if (sourceLanguage == TranslateLanguage.KOREAN)"한국어" else "일본어")
+            Spacer(modifier = Modifier
+                .width(width = 20.dp))
+            Button(
+                onClick = {
+                    val temp = sourceLanguage
+                    sourceLanguage = targetLanguage
+                    targetLanguage = temp
+                    isReady = false
+                }
+            ) {
+                Text("언어 변환 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한→일" else "일→한"})")
             }
-        ) {
-            Text("언어 변환 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한→일" else "일→한"})")
+            Spacer(modifier = Modifier
+                .width(width = 20.dp))
+            Text(if (sourceLanguage == TranslateLanguage.KOREAN)"일본어" else "한국어")
         }
+
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
