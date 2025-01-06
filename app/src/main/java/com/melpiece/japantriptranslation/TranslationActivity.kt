@@ -1,14 +1,19 @@
 package com.melpiece.japantriptranslation
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Button
@@ -31,7 +36,7 @@ import com.google.mlkit.nl.translate.TranslatorOptions
 import com.melpiece.japantriptranslation.ui.theme.JapantriptranslationTheme
 import java.util.Locale
 
-class TranslationActivity:ComponentActivity() {
+class TranslationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -41,8 +46,9 @@ class TranslationActivity:ComponentActivity() {
         }
     }
 }
+
 @Composable
-fun TranslationScreen(){
+fun TranslationScreen() {
     val context = LocalContext.current
     val tts = remember {
         TextToSpeech(context) { status ->
@@ -53,7 +59,7 @@ fun TranslationScreen(){
     }
     var sourceLanguage by remember { mutableStateOf(TranslateLanguage.KOREAN) }
     var targetLanguage by remember { mutableStateOf(TranslateLanguage.JAPANESE) }
-    val koEnTranslator = remember(sourceLanguage, targetLanguage) {
+    val koJPTranslator = remember(sourceLanguage, targetLanguage) {
         val options = TranslatorOptions.Builder()
             .setSourceLanguage(sourceLanguage)
             .setTargetLanguage(targetLanguage)
@@ -62,31 +68,79 @@ fun TranslationScreen(){
         Translation.getClient(options)
     }
     var isReady by remember { mutableStateOf(false) }
-    LaunchedEffect(koEnTranslator) {
+    LaunchedEffect(koJPTranslator) {
         var conditions = DownloadConditions.Builder()
 //            .requireWifi()
             .build()
-        koEnTranslator.downloadModelIfNeeded(conditions)
+        koJPTranslator.downloadModelIfNeeded(conditions)
             .addOnSuccessListener {
                 isReady = true
             }
     }
     var text by remember { mutableStateOf("") }
     var newText by remember { mutableStateOf("") }
+
+    val speechRecognizerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val spokenText =
+                result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0) ?: ""
+            text = spokenText
+        }
+    }
     Column(
         modifier = Modifier
             .padding(WindowInsets.systemBars.asPaddingValues())
             .padding(top = 10.dp)
+            .padding(horizontal = 8.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Button(
+            onClick = {
+                val temp = sourceLanguage
+                sourceLanguage = targetLanguage
+                targetLanguage = temp
+                isReady = false
+            }
+        ) {
+            Text("언어 변환 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한→일" else "일→한"})")
+        }
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
+            label = { Text("입력") },
+            modifier = Modifier.fillMaxWidth()
         )
         Button(
             onClick = {
-                koEnTranslator.translate(text)
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+                    )
+                    putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE,
+                        if (sourceLanguage == TranslateLanguage.KOREAN) "ko-KR" else "ja-JP"
+                    )
+                    putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
+                        if (sourceLanguage == TranslateLanguage.KOREAN) "ko-KR" else "ja-JP"
+                    )
+                    putExtra(
+                        RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE,
+                        true
+                    )
+                }
+                speechRecognizerLauncher.launch(intent)
+            }
+        ) {
+            Text("음성 입력 시작 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한국어" else "일본어"})")
+        }
+        Button(
+            onClick = {
+                koJPTranslator.translate(text)
                     .addOnSuccessListener { translatedText ->
                         newText = translatedText
                     }
@@ -98,7 +152,11 @@ fun TranslationScreen(){
         ) {
             Text("번역")
         }
-        Text("번역 : $newText")
+        Column (modifier = Modifier
+            .fillMaxWidth()){
+            Text("번역 \n $newText")
+        }
+
         Button(
             onClick = {
                 tts.language = if (targetLanguage == TranslateLanguage.JAPANESE) {
@@ -112,17 +170,7 @@ fun TranslationScreen(){
         ) {
             Text("번역 결과 읽기")
         }
-        Button(
-            onClick = {
-                // Swap source and target languages
-                val temp = sourceLanguage
-                sourceLanguage = targetLanguage
-                targetLanguage = temp
-                isReady = false // Reset readiness
-            }
-        ) {
-            Text("언어 변환 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한→일" else "일→한"})")
-        }
+
         Button(
             onClick = {
                 val activity = context as? Activity
