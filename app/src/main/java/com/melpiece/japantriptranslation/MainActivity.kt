@@ -47,6 +47,15 @@ fun MainScreen() {
     ) {
         Button(
             onClick = {
+                val intent = Intent(context,TranslationActivity::class.java)
+                context.startActivity(intent)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) { Text("텍스트 번역") }
+        Button(
+            onClick = {
                 val intent = Intent(context,CameraTranslationActivity::class.java)
                 context.startActivity(intent)
             },

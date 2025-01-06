@@ -25,6 +25,7 @@
         </activity>
         <activity android:name=".CameraTranslationActivity"/>
         <activity android:name=".VoiceChatActivity"/>
+        <activity android:name=".TranslationActivity"/>
     </application>
 
 </manifest>
