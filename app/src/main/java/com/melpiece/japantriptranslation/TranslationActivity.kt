@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.google.mlkit.common.model.DownloadConditions
@@ -101,13 +103,17 @@ fun TranslationScreen() {
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row (modifier = Modifier
-            .fillMaxWidth(),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically){
-            Text(if (sourceLanguage == TranslateLanguage.KOREAN)"한국어" else "일본어")
-            Spacer(modifier = Modifier
-                .width(width = 20.dp))
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(if (sourceLanguage == TranslateLanguage.KOREAN) "한국어" else "일본어")
+            Spacer(
+                modifier = Modifier
+                    .width(width = 20.dp)
+            )
             Button(
                 onClick = {
                     val temp = sourceLanguage
@@ -118,9 +124,11 @@ fun TranslationScreen() {
             ) {
                 Text("언어 변환 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한→일" else "일→한"})")
             }
-            Spacer(modifier = Modifier
-                .width(width = 20.dp))
-            Text(if (sourceLanguage == TranslateLanguage.KOREAN)"일본어" else "한국어")
+            Spacer(
+                modifier = Modifier
+                    .width(width = 20.dp)
+            )
+            Text(if (targetLanguage == TranslateLanguage.JAPANESE) "일본어" else "한국어")
         }
 
         OutlinedTextField(
@@ -131,25 +139,7 @@ fun TranslationScreen() {
         )
         Button(
             onClick = {
-                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                    putExtra(
-                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-                    )
-                    putExtra(
-                        RecognizerIntent.EXTRA_LANGUAGE,
-                        if (sourceLanguage == TranslateLanguage.KOREAN) "ko-KR" else "ja-JP"
-                    )
-                    putExtra(
-                        RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
-                        if (sourceLanguage == TranslateLanguage.KOREAN) "ko-KR" else "ja-JP"
-                    )
-                    putExtra(
-                        RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE,
-                        true
-                    )
-                }
-                speechRecognizerLauncher.launch(intent)
+                speechRecognizerLauncher.launch(createIntentSTT(sourceLanguage))
             }
         ) {
             Text("음성 입력 시작 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한국어" else "일본어"})")
@@ -168,8 +158,11 @@ fun TranslationScreen() {
         ) {
             Text("번역")
         }
-        Column (modifier = Modifier
-            .fillMaxWidth()){
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = Color.LightGray)
+        ) {
             Text("번역 \n $newText")
         }
 
@@ -196,5 +189,26 @@ fun TranslationScreen() {
         ) {
             Text(text = "뒤로가기")
         }
+    }
+}
+
+private fun createIntentSTT(sourceLanguage: String): Intent {
+    return Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+        putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE,
+            if (sourceLanguage == TranslateLanguage.KOREAN) "ko-KR" else "ja-JP"
+        )
+        putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
+            if (sourceLanguage == TranslateLanguage.KOREAN) "ko-KR" else "ja-JP"
+        )
+        putExtra(
+            RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE,
+            true
+        )
     }
 }
