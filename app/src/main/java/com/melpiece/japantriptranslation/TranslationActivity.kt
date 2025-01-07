@@ -79,7 +79,7 @@ fun TranslationScreen() {
     }
     var isReady by remember { mutableStateOf(false) }
     LaunchedEffect(krJpTranslator) {
-        var conditions = DownloadConditions.Builder()
+        val conditions = DownloadConditions.Builder()
 //            .requireWifi()
             .build()
         krJpTranslator.downloadModelIfNeeded(conditions)

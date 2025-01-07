@@ -12,10 +12,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Button
@@ -84,7 +86,7 @@ fun VoiceChatScreen() {
     var isKrJpReady by remember { mutableStateOf(false) }
     var isJpKrReady by remember { mutableStateOf(false) }
     LaunchedEffect(krJpTranslator) {
-        var conditions = DownloadConditions.Builder()
+        val conditions = DownloadConditions.Builder()
 //            .requireWifi()
             .build()
         krJpTranslator.downloadModelIfNeeded(conditions)
@@ -93,7 +95,7 @@ fun VoiceChatScreen() {
             }
     }
     LaunchedEffect(jpKrTranslator) {
-        var conditions = DownloadConditions.Builder()
+        val conditions = DownloadConditions.Builder()
 //            .requireWifi()
             .build()
         jpKrTranslator.downloadModelIfNeeded(conditions)
@@ -179,7 +181,9 @@ fun VoiceChatScreen() {
             .fillMaxWidth()
             .graphicsLayer {
                 rotationZ = 180f
-            }) {
+            },
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
             OutlinedTextField(
                 value = jptext,
                 onValueChange = { jptext = it },
@@ -194,9 +198,13 @@ fun VoiceChatScreen() {
                 Text(text = "日本語 音声認識")
             }
         }
+        Spacer(modifier = Modifier
+            .height(10.dp))
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedTextField(
                 value = krtext,
