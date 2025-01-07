@@ -69,7 +69,7 @@ fun TranslationScreen() {
     }
     var sourceLanguage by remember { mutableStateOf(TranslateLanguage.KOREAN) }
     var targetLanguage by remember { mutableStateOf(TranslateLanguage.JAPANESE) }
-    val krJPTranslator = remember(sourceLanguage, targetLanguage) {
+    val krJpTranslator = remember(sourceLanguage, targetLanguage) {
         val options = TranslatorOptions.Builder()
             .setSourceLanguage(sourceLanguage)
             .setTargetLanguage(targetLanguage)
@@ -78,11 +78,11 @@ fun TranslationScreen() {
         Translation.getClient(options)
     }
     var isReady by remember { mutableStateOf(false) }
-    LaunchedEffect(krJPTranslator) {
+    LaunchedEffect(krJpTranslator) {
         var conditions = DownloadConditions.Builder()
 //            .requireWifi()
             .build()
-        krJPTranslator.downloadModelIfNeeded(conditions)
+        krJpTranslator.downloadModelIfNeeded(conditions)
             .addOnSuccessListener {
                 isReady = true
             }
@@ -150,7 +150,7 @@ fun TranslationScreen() {
         }
         Button(
             onClick = {
-                krJPTranslator.translate(text)
+                krJpTranslator.translate(text)
                     .addOnSuccessListener { translatedText ->
                         newText = translatedText
                     }
