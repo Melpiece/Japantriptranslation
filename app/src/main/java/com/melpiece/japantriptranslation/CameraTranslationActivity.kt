@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -117,6 +118,8 @@ fun CameraTranslationScreen() {
         Translation.getClient(options)
     }
     var translatedText by remember { mutableStateOf("") }
+    var realTranslatedText by remember { mutableStateOf("") }
+    var showCapturedImage by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(lensFacing) {
         val cameraProvider = context.getCameraProvider()
@@ -129,20 +132,48 @@ fun CameraTranslationScreen() {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
+        showCapturedImage?.let {
+            AndroidView(factory = {
+                PreviewView(context).apply {
+                    background = android.graphics.drawable.BitmapDrawable(resources, showCapturedImage)
+                }
+            }, modifier = Modifier.fillMaxSize())
+        } ?: AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
+
         Column(modifier = Modifier.fillMaxWidth()) {
             Button(
                 onClick = {
-                    captureAndTranslateText(imageCapture, context, recognizer, translator) { text ->
-                        translatedText = text
+                    realTranslateText(imageCapture, context, recognizer, translator) { text ->
+                        realTranslatedText = text
                     }
                 },
                 modifier = Modifier.fillMaxWidth().padding(8.dp)
             ) {
+                Text("실시간 번역")
+            }
+            if (realTranslatedText.isNotEmpty()) {
+                Text(
+                    "번역된 텍스트: \n$realTranslatedText",
+                    modifier = Modifier.padding(8.dp),
+                    color = Color.White
+                )
+            }
+            Button(
+                onClick = {
+                    captureAndTranslateText(imageCapture, context, recognizer, translator) { text , bitmap ->
+                        translatedText = text
+                        showCapturedImage = bitmap
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
                 Text("캡처 및 번역")
             }
             if (translatedText.isNotEmpty()) {
-                Text("번역된 텍스트: \n$translatedText",
+                Text(
+                    "번역된 텍스트: \n$translatedText",
                     modifier = Modifier
                         .padding(8.dp),
                     color = Color.White
@@ -150,10 +181,22 @@ fun CameraTranslationScreen() {
             }
             Button(
                 onClick = {
+                    showCapturedImage = null
+                    translatedText = ""
+                    realTranslatedText = ""
+                },
+                modifier = Modifier.fillMaxWidth().padding(8.dp)
+            ) {
+                Text("다시 카메라 실행")
+            }
+            Button(
+                onClick = {
                     val activity = context as? Activity
                     activity?.finish()
                 },
-                modifier = Modifier.fillMaxWidth().padding(8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
             ) {
                 Text(text = "뒤로가기")
             }
@@ -169,8 +212,7 @@ private suspend fun Context.getCameraProvider(): ProcessCameraProvider =
             }, ContextCompat.getMainExecutor(this))
         }
     }
-
-private fun captureAndTranslateText(
+private fun realTranslateText(
     imageCapture: ImageCapture,
     context: Context,
     recognizer: com.google.mlkit.vision.text.TextRecognizer,
@@ -209,7 +251,46 @@ private fun captureAndTranslateText(
     )
 }
 
-private fun ImageProxy.toBitmap(): android.graphics.Bitmap {
+private fun captureAndTranslateText(
+    imageCapture: ImageCapture,
+    context: Context,
+    recognizer: com.google.mlkit.vision.text.TextRecognizer,
+    translator: com.google.mlkit.nl.translate.Translator,
+    onTextTranslated: (String,Bitmap?) -> Unit
+) {
+    imageCapture.takePicture(
+        ContextCompat.getMainExecutor(context),
+        object : ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+                val bitmap = image.toBitmap()
+                val inputImage = InputImage.fromBitmap(bitmap, 0)
+                recognizer.process(inputImage)
+                    .addOnSuccessListener { visionText ->
+                        val detectedText = visionText.text
+                        translator.translate(detectedText)
+                            .addOnSuccessListener { translated ->
+                                onTextTranslated(translated,bitmap)
+                            }
+                            .addOnFailureListener { e ->
+                                onTextTranslated("번역 실패: ${e.message}",null)
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        onTextTranslated("텍스트 감지 실패: ${e.message}",null)
+                    }
+                    .addOnCompleteListener {
+                        image.close()
+                    }
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                onTextTranslated("이미지 캡처 실패: ${exception.message}",null)
+            }
+        }
+    )
+}
+
+private fun ImageProxy.toBitmap(): Bitmap {
     val buffer = planes[0].buffer
     val bytes = ByteArray(buffer.remaining())
     buffer.get(bytes)
