@@ -63,4 +63,6 @@ dependencies {
     implementation ("androidx.camera:camera-lifecycle:$cameraxVersion")
     implementation("com.google.mlkit:translate:17.0.3")
     implementation ("com.google.mlkit:text-recognition-japanese:16.0.1")
+    val lottieVersion = "6.6.2"
+    implementation ("com.airbnb.android:lottie-compose:$lottieVersion")
 }
