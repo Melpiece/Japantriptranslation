@@ -17,6 +17,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -133,11 +135,11 @@ fun CameraTranslationScreen() {
             .fillMaxSize()
     ) {
         showCapturedImage?.let {
-            AndroidView(factory = {
-                PreviewView(context).apply {
-                    background = android.graphics.drawable.BitmapDrawable(resources, showCapturedImage)
-                }
-            }, modifier = Modifier.fillMaxSize())
+            Image(
+                bitmap = it.asImageBitmap(),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize()
+            )
         } ?: AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
 
         Column(modifier = Modifier.fillMaxWidth()) {
