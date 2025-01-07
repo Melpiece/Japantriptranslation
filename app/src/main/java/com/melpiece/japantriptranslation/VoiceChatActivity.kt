@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
+import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
 import com.melpiece.japantriptranslation.ui.theme.JapantriptranslationTheme
 
@@ -65,23 +66,15 @@ fun VoiceChatScreen() {
             }
         }
     }
-    val krLanguage by remember { mutableStateOf(TranslateLanguage.KOREAN) }
-    val jpLanguage by remember { mutableStateOf(TranslateLanguage.JAPANESE) }
-    val krJpTranslator = remember(krLanguage, jpLanguage) {
-        val options = TranslatorOptions.Builder()
-            .setSourceLanguage(krLanguage)
-            .setTargetLanguage(jpLanguage)
-            .build()
+//    val krLanguage = remember { TranslateLanguage.KOREAN }
+//    val TranslateLanguage.JAPANESE = remember { TranslateLanguage.JAPANESE }
 
-        Translation.getClient(options)
+
+    val krJpTranslator = remember {
+        createTransClient(TranslateLanguage.KOREAN, TranslateLanguage.JAPANESE)
     }
-    val jpKrTranslator = remember(jpLanguage, krLanguage) {
-        val options = TranslatorOptions.Builder()
-            .setSourceLanguage(jpLanguage)
-            .setTargetLanguage(krLanguage)
-            .build()
-
-        Translation.getClient(options)
+    val jpKrTranslator = remember {
+        createTransClient(TranslateLanguage.JAPANESE, TranslateLanguage.KOREAN)
     }
     var isKrJpReady by remember { mutableStateOf(false) }
     var isJpKrReady by remember { mutableStateOf(false) }
@@ -177,13 +170,15 @@ fun VoiceChatScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                rotationZ = 180f
-            },
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    rotationZ = 180f
+                },
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally) {
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             OutlinedTextField(
                 value = jptext,
                 onValueChange = { jptext = it },
@@ -198,8 +193,10 @@ fun VoiceChatScreen() {
                 Text(text = "日本語 音声認識")
             }
         }
-        Spacer(modifier = Modifier
-            .height(10.dp))
+        Spacer(
+            modifier = Modifier
+                .height(10.dp)
+        )
         Column(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -232,6 +229,7 @@ fun VoiceChatScreen() {
     }
 
 }
+
 @Preview(showBackground = true)
 @Composable
 fun VoiceChatScreenPreview() {
