@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
@@ -138,7 +139,9 @@ fun CameraTranslationScreen() {
             Image(
                 bitmap = it.asImageBitmap(),
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .graphicsLayer { rotationZ = 90f }
+                    .fillMaxSize()
             )
         } ?: AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
 
@@ -178,7 +181,7 @@ fun CameraTranslationScreen() {
                     "번역된 텍스트: \n$translatedText",
                     modifier = Modifier
                         .padding(8.dp),
-                    color = Color.White
+                    color = Color.Black
                 )
             }
             Button(
