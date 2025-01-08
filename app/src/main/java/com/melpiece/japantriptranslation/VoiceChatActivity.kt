@@ -10,8 +10,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -19,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
@@ -146,7 +150,7 @@ fun VoiceChatScreen() {
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR") // Set language to Korean
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR")
         }
         krSpeechRecognizerLauncher.launch(intent)
     }
@@ -157,7 +161,7 @@ fun VoiceChatScreen() {
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ja-JP") // Set language to Japanese
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ja-JP")
         }
         jpSpeechRecognizerLauncher.launch(intent)
     }
@@ -167,15 +171,15 @@ fun VoiceChatScreen() {
             .fillMaxSize()
             .padding(WindowInsets.systemBars.asPaddingValues())
             .padding(horizontal = 10.dp),
-        verticalArrangement = Arrangement.Center,
+//        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .graphicsLayer {
-                    rotationZ = 180f
-                },
+                .fillMaxWidth(),
+//                .graphicsLayer {
+//                    rotationZ = 180f
+//                },
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -184,13 +188,35 @@ fun VoiceChatScreen() {
                 onValueChange = { jptext = it },
                 label = { Text("日本語") },
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .height(280.dp),
             )
             Button(
                 onClick = { startJpSpeechRecognition() },
                 modifier = Modifier
             ) {
                 Text(text = "日本語 音声認識")
+            }
+        }
+        Spacer(
+            modifier = Modifier
+                .height(10.dp)
+        )
+        Row { BackIcon()
+            Spacer(modifier = Modifier
+                .weight(1f))
+            Row(modifier = Modifier
+                .clickable { startKrSpeechRecognition()},
+                verticalAlignment = Alignment.CenterVertically) {
+                AnimeLoader(R.raw.mic)
+                Text("한국어")
+            }
+            Row(modifier = Modifier
+                .clickable { startKrSpeechRecognition()}
+                .graphicsLayer { rotationZ = 180f },
+                verticalAlignment = Alignment.CenterVertically) {
+                AnimeLoader(R.raw.mic)
+                Text("日本語")
             }
         }
         Spacer(
@@ -208,7 +234,8 @@ fun VoiceChatScreen() {
                 onValueChange = { krtext = it },
                 label = { Text("한국어") },
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .size(280.dp),
             )
             Button(
                 onClick = { startKrSpeechRecognition() },
