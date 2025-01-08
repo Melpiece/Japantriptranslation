@@ -22,7 +22,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -51,7 +55,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     val context = LocalContext.current
-
+    var loader1 by remember { mutableStateOf(true) }
+    var loader2 by remember { mutableStateOf(false) }
+    var loader3 by remember { mutableStateOf(false) }
+    var loader4 by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -69,7 +76,10 @@ fun MainScreen() {
             modifier = Modifier
                 .size(300.dp)
         ) {
-            AnimeLoader(R.raw.airplain)
+            AnimeLoader(R.raw.airplain, loader1, onFinish = {
+                loader1 = false
+                loader2 = true
+            })
         }
         Row {
             Box(
@@ -86,7 +96,10 @@ fun MainScreen() {
                         )
                     }
                 ) {
-                    AnimeLoader(R.raw.textani)
+                    AnimeLoader(R.raw.textani, loader2, onFinish = {
+                        loader2 = false
+                        loader3 = true
+                    })
                 }
 
                 Text("텍스트 번역")
@@ -107,7 +120,10 @@ fun MainScreen() {
                     modifier = Modifier
                         .size(180.dp)
                 ) {
-                    AnimeLoader(R.raw.cameraani)
+                    AnimeLoader(R.raw.cameraani, loader3, onFinish = {
+                        loader3 = false
+                        loader4 = true
+                    })
                 }
 
                 Text("카메라 번역")
@@ -134,7 +150,10 @@ fun MainScreen() {
                     modifier = Modifier
                         .size(180.dp)
                 ) {
-                    AnimeLoader(R.raw.talkain)
+                    AnimeLoader(R.raw.talkain, loader4, onFinish = {
+                        loader4 = false
+                        loader1 = true
+                    })
                 }
 
                 Text("음성 대화")
@@ -165,7 +184,26 @@ fun MainScreenPreview() {
 }
 
 @Composable
-fun AnimeLoader(animelocation: Int) {
+fun AnimeLoader(animelocation: Int, isPlay: Boolean = true, onFinish: () -> Unit = {}) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(animelocation))
+    val progress by animateLottieCompositionAsState(
+        isPlaying = isPlay,
+        composition = composition,
+        iterations = 1
+    )
+    LottieAnimation(
+        composition = composition,
+        progress = { progress },
+        modifier = Modifier
+    )
+    LaunchedEffect(isPlay,progress == 1.0f) {
+        if(progress == 1.0f) {
+            onFinish()
+        }
+    }
+}
+@Composable
+fun InfiniteAnimeLoader(animelocation: Int){
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(animelocation))
     val progress by animateLottieCompositionAsState(
         composition = composition,
