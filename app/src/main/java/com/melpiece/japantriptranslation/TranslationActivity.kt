@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
@@ -187,34 +188,44 @@ fun TranslationScreen() {
                 )
                 Box(modifier = Modifier
                     .clickable { speechRecognizerLauncher.launch(createIntentSTT(sourceLanguage)) }) {
-                    AnimeLoader(R.raw.mic)
+                    InfiniteAnimeLoader(R.raw.mic)
                 }
             }
         }
+        Spacer(modifier = Modifier
+            .height(5.dp))
 
-        Icon(
-            painter = painterResource(R.drawable.updown),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(8.dp)
-                .clickable {
-                    val temp = sourceLanguage
-                    val temptext = text
-                    sourceLanguage = targetLanguage
-                    targetLanguage = temp
-                    text = newText
-                    newText = temptext
-                    isReady = false
-                }
-                .size(40.dp),
-            tint = Color.Unspecified
-
-        )
         Column(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Text(if (targetLanguage == TranslateLanguage.JAPANESE) "일본어" else "한국어")
+            Row(modifier = Modifier
+                .fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom){
+                Text(if (targetLanguage == TranslateLanguage.JAPANESE) "일본어" else "한국어")
+                Spacer(modifier = Modifier
+                    .weight(0.8f))
+                Icon(
+                    painter = painterResource(R.drawable.updown),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clickable {
+                            val temp = sourceLanguage
+                            val temptext = text
+                            sourceLanguage = targetLanguage
+                            targetLanguage = temp
+                            text = newText
+                            newText = temptext
+                            isReady = false
+                        }
+                        .size(40.dp),
+                    tint = Color.Unspecified
+                )
+                Spacer(modifier = Modifier
+                    .weight(1f))
+            }
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -239,7 +250,7 @@ fun TranslationScreen() {
                         tts.speak(newText, TextToSpeech.QUEUE_FLUSH, null, null)
                     }
                     .size(50.dp)) {
-                    AnimeLoader(R.raw.speak)
+                    InfiniteAnimeLoader(R.raw.speak)
                 }
             }
         }
