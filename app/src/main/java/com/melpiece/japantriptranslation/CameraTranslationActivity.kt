@@ -200,7 +200,7 @@ fun CameraTranslationScreen() {
                     color = Color.Black
                 )
             }
-            if (areButtonsVisible == false){
+            if (!areButtonsVisible){
             Button(
                 onClick = {
                     showCapturedImage = null
