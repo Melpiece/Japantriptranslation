@@ -10,21 +10,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -36,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -129,14 +125,24 @@ fun TranslationScreen() {
                 .fillMaxWidth()
         ) {
             Text(if (sourceLanguage == TranslateLanguage.KOREAN) "한국어" else "일본어")
-            Box(modifier = Modifier
-                .fillMaxWidth()){
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(intrinsicSize = IntrinsicSize.Max),
+                contentAlignment = Alignment.CenterEnd
+            ) {
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
                     label = { Text("입력") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                Box(modifier = Modifier
+                    .clickable { speechRecognizerLauncher.launch(createIntentSTT(sourceLanguage)) }){
+                    AnimeLoader(R.raw.mic)
+                }
+
+
 
             }
 
@@ -152,13 +158,6 @@ fun TranslationScreen() {
             }
         ) {
             Text("언어 변환 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한→일" else "일→한"})")
-        }
-        Button(
-            onClick = {
-                speechRecognizerLauncher.launch(createIntentSTT(sourceLanguage))
-            }
-        ) {
-            Text("음성 입력 시작 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한국어" else "일본어"})")
         }
         Button(
             onClick = {
