@@ -140,6 +140,19 @@ fun TranslationScreen() {
                 modifier = Modifier
                     .weight(1f)
             )
+            Icon(
+                painter = painterResource(R.drawable.chat),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable {
+                        context.startActivity(
+                            Intent(context, VoiceChatActivity::class.java)
+                        )
+                    }
+                    .size(30.dp),
+                tint = Color.Unspecified
+            )
             BackIcon()
         }
         Column(
