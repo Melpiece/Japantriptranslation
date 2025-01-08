@@ -12,7 +12,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,7 +23,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,9 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.translate.TranslateLanguage
-import com.google.mlkit.nl.translate.Translation
-import com.google.mlkit.nl.translate.Translator
-import com.google.mlkit.nl.translate.TranslatorOptions
 import com.melpiece.japantriptranslation.ui.theme.JapantriptranslationTheme
 
 class VoiceChatActivity : ComponentActivity() {
@@ -70,9 +65,6 @@ fun VoiceChatScreen() {
             }
         }
     }
-//    val krLanguage = remember { TranslateLanguage.KOREAN }
-//    val TranslateLanguage.JAPANESE = remember { TranslateLanguage.JAPANESE }
-
 
     val krJpTranslator = remember {
         createTransClient(TranslateLanguage.KOREAN, TranslateLanguage.JAPANESE)
@@ -170,16 +162,16 @@ fun VoiceChatScreen() {
         modifier = Modifier
             .fillMaxSize()
             .padding(WindowInsets.systemBars.asPaddingValues())
-            .padding(horizontal = 10.dp),
-//        verticalArrangement = Arrangement.Center,
+            .padding(horizontal = 10.dp)
+            .padding(top = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth(),
-//                .graphicsLayer {
-//                    rotationZ = 180f
-//                },
+                .fillMaxWidth()
+                .graphicsLayer {
+                    rotationZ = 180f
+                },
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -189,35 +181,43 @@ fun VoiceChatScreen() {
                 label = { Text("日本語") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(280.dp),
+                    .height(300.dp),
             )
-            Button(
-                onClick = { startJpSpeechRecognition() },
-                modifier = Modifier
-            ) {
-                Text(text = "日本語 音声認識")
-            }
         }
         Spacer(
             modifier = Modifier
                 .height(10.dp)
         )
-        Row { BackIcon()
-            Spacer(modifier = Modifier
-                .weight(1f))
-            Row(modifier = Modifier
-                .clickable { startKrSpeechRecognition()},
-                verticalAlignment = Alignment.CenterVertically) {
-                AnimeLoader(R.raw.mic)
+        Row {
+            BackIcon()
+            Spacer(
+                modifier = Modifier
+                    .weight(0.5f)
+            )
+            Row(
+                modifier = Modifier
+                    .clickable { startKrSpeechRecognition() },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                InfiniteAnimeLoader(R.raw.mic)
                 Text("한국어")
             }
+            Spacer(
+                modifier = Modifier
+                    .weight(1f)
+            )
             Row(modifier = Modifier
-                .clickable { startKrSpeechRecognition()}
+                .clickable { startJpSpeechRecognition() }
                 .graphicsLayer { rotationZ = 180f },
-                verticalAlignment = Alignment.CenterVertically) {
-                AnimeLoader(R.raw.mic)
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                InfiniteAnimeLoader(R.raw.mic)
                 Text("日本語")
             }
+            Spacer(
+                modifier = Modifier
+                    .weight(0.5f)
+            )
         }
         Spacer(
             modifier = Modifier
@@ -235,26 +235,10 @@ fun VoiceChatScreen() {
                 label = { Text("한국어") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .size(280.dp),
+                    .size(300.dp),
             )
-            Button(
-                onClick = { startKrSpeechRecognition() },
-                modifier = Modifier
-            ) {
-                Text(text = "한국어 음성 인식")
-            }
-        }
-        Button(
-            onClick = {
-                val activity = context as? Activity
-                activity?.finish()
-            },
-            modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
-        ) {
-            Text(text = "뒤로가기")
         }
     }
-
 }
 
 @Preview(showBackground = true)
