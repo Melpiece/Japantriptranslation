@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -37,11 +37,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -137,6 +136,8 @@ fun TranslationScreen() {
                 fontSize = 35.sp,
                 fontWeight = FontWeight.ExtraBold
             )
+            Spacer(modifier = Modifier
+                .weight(1f))
             Icon(
                 painter = painterResource(R.drawable.back),
                 contentDescription = null,
@@ -146,7 +147,8 @@ fun TranslationScreen() {
                         val activity = context as? Activity
                         activity?.finish()
                     }
-                    .size(40.dp),
+
+                    .size(30.dp),
                 tint = Color.Unspecified
 
             )
@@ -185,10 +187,7 @@ fun TranslationScreen() {
                     .clickable { speechRecognizerLauncher.launch(createIntentSTT(sourceLanguage)) }) {
                     AnimeLoader(R.raw.mic)
                 }
-
-
             }
-
         }
 
         Icon(
@@ -209,21 +208,6 @@ fun TranslationScreen() {
             tint = Color.Unspecified
 
         )
-
-//        Button(
-//            onClick = {
-//                krJpTranslator.translate(text)
-//                    .addOnSuccessListener { translatedText ->
-//                        newText = translatedText
-//                    }
-//                    .addOnFailureListener { exception ->
-//                        newText = "번역 실패"
-//                    }
-//            },
-//            enabled = isReady,
-//        ) {
-//            Text("번역")
-//        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -256,20 +240,6 @@ fun TranslationScreen() {
                     AnimeLoader(R.raw.speak)
                 }
             }
-        }
-
-        Button(
-            onClick = {
-                tts.language = if (targetLanguage == TranslateLanguage.JAPANESE) {
-                    Locale.JAPANESE
-                } else {
-                    Locale.KOREAN
-                }
-                tts.speak(newText, TextToSpeech.QUEUE_FLUSH, null, null)
-            },
-            enabled = newText.isNotBlank()
-        ) {
-            Text("번역 결과 읽기")
         }
     }
 }
