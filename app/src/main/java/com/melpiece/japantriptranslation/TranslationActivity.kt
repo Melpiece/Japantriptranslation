@@ -10,8 +10,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -35,7 +38,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
@@ -109,38 +115,44 @@ fun TranslationScreen() {
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
+            Text(
+                "번역",
+                fontSize = 35.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
             Text(if (sourceLanguage == TranslateLanguage.KOREAN) "한국어" else "일본어")
-            Spacer(
-                modifier = Modifier
-                    .width(width = 20.dp)
-            )
-            Button(
-                onClick = {
-                    val temp = sourceLanguage
-                    sourceLanguage = targetLanguage
-                    targetLanguage = temp
-                    isReady = false
-                }
-            ) {
-                Text("언어 변환 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한→일" else "일→한"})")
+            Box(modifier = Modifier
+                .fillMaxWidth()){
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text("입력") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
             }
-            Spacer(
-                modifier = Modifier
-                    .width(width = 20.dp)
-            )
-            Text(if (targetLanguage == TranslateLanguage.JAPANESE) "일본어" else "한국어")
+
         }
 
-        OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
-            label = { Text("입력") },
-            modifier = Modifier.fillMaxWidth()
-        )
+
+        Button(
+            onClick = {
+                val temp = sourceLanguage
+                sourceLanguage = targetLanguage
+                targetLanguage = temp
+                isReady = false
+            }
+        ) {
+            Text("언어 변환 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한→일" else "일→한"})")
+        }
         Button(
             onClick = {
                 speechRecognizerLauncher.launch(createIntentSTT(sourceLanguage))
@@ -165,9 +177,15 @@ fun TranslationScreen() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = Color.LightGray)
         ) {
-            Text("번역 \n $newText")
+            Text(if (targetLanguage == TranslateLanguage.JAPANESE) "일본어" else "한국어")
+            OutlinedTextField(
+                value = newText,
+                onValueChange = { newText = it },
+                label = { Text("번역") },
+                modifier = Modifier.fillMaxWidth()
+            )
+//            Text("번역 \n $newText")
         }
 
         Button(
@@ -215,4 +233,13 @@ private fun createIntentSTT(sourceLanguage: String): Intent {
             true
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TranslationScreenPreview() {
+    JapantriptranslationTheme {
+        TranslationScreen()
+    }
+
 }
