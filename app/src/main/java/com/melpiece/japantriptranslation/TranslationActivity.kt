@@ -235,13 +235,15 @@ fun TranslationScreen() {
                         .height(280.dp)
                 )
                 Box(modifier = Modifier
-                    .clickable { tts.language = if (targetLanguage == TranslateLanguage.JAPANESE) {
-                        Locale.JAPANESE
-                    } else {
-                        Locale.KOREAN
-                    }
+                    .clickable {
+                        tts.language = if (targetLanguage == TranslateLanguage.JAPANESE) {
+                            Locale.JAPANESE
+                        } else {
+                            Locale.KOREAN
+                        }
                         tts.speak(newText, TextToSpeech.QUEUE_FLUSH, null, null)
-                    }) {
+                    }
+                    .size(50.dp)) {
                     AnimeLoader(R.raw.speak)
                 }
             }
