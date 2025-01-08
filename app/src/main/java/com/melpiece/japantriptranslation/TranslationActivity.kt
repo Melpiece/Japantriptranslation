@@ -155,7 +155,18 @@ fun TranslationScreen() {
             ) {
                 OutlinedTextField(
                     value = text,
-                    onValueChange = { text = it },
+                    onValueChange = {
+                        text = it
+                        if (isReady) {
+                            krJpTranslator.translate(it)
+                                .addOnSuccessListener { translatedText ->
+                                    newText = translatedText
+                                }
+                                .addOnFailureListener {
+                                    newText = "번역 실패"
+                                }
+                        }
+                    },
                     label = { Text("입력") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -190,20 +201,20 @@ fun TranslationScreen() {
 
         )
 
-        Button(
-            onClick = {
-                krJpTranslator.translate(text)
-                    .addOnSuccessListener { translatedText ->
-                        newText = translatedText
-                    }
-                    .addOnFailureListener { exception ->
-                        newText = "번역 실패"
-                    }
-            },
-            enabled = isReady,
-        ) {
-            Text("번역")
-        }
+//        Button(
+//            onClick = {
+//                krJpTranslator.translate(text)
+//                    .addOnSuccessListener { translatedText ->
+//                        newText = translatedText
+//                    }
+//                    .addOnFailureListener { exception ->
+//                        newText = "번역 실패"
+//                    }
+//            },
+//            enabled = isReady,
+//        ) {
+//            Text("번역")
+//        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -211,7 +222,7 @@ fun TranslationScreen() {
             Text(if (targetLanguage == TranslateLanguage.JAPANESE) "일본어" else "한국어")
             OutlinedTextField(
                 value = newText,
-                onValueChange = { newText = it },
+                onValueChange = { },
                 label = { Text("번역") },
                 modifier = Modifier
                     .fillMaxWidth()
