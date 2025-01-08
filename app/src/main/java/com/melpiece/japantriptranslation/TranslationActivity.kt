@@ -220,15 +220,31 @@ fun TranslationScreen() {
                 .fillMaxWidth()
         ) {
             Text(if (targetLanguage == TranslateLanguage.JAPANESE) "일본어" else "한국어")
-            OutlinedTextField(
-                value = newText,
-                onValueChange = { },
-                label = { Text("번역") },
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(280.dp)
-            )
-//            Text("번역 \n $newText")
+                    .height(intrinsicSize = IntrinsicSize.Max),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                OutlinedTextField(
+                    value = newText,
+                    onValueChange = { },
+                    label = { Text("번역") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(280.dp)
+                )
+                Box(modifier = Modifier
+                    .clickable { tts.language = if (targetLanguage == TranslateLanguage.JAPANESE) {
+                        Locale.JAPANESE
+                    } else {
+                        Locale.KOREAN
+                    }
+                        tts.speak(newText, TextToSpeech.QUEUE_FLUSH, null, null)
+                    }) {
+                    AnimeLoader(R.raw.speak)
+                }
+            }
         }
 
         Button(
