@@ -20,6 +20,7 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -142,39 +143,46 @@ fun CameraTranslationScreen() {
         } ?: AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            if (areButtonsVisible) {
-                Button(
-                    onClick = {
-                        realTranslateText(imageCapture, context, recognizer, translator) { text ->
-                            realTranslatedText = text
-                        }
-                        areButtonsVisible = false
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Text("실시간 번역")
-                }
+            Row{
+                if (areButtonsVisible) {
+                    Button(
+                        onClick = {
+                            realTranslateText(
+                                imageCapture,
+                                context,
+                                recognizer,
+                                translator
+                            ) { text ->
+                                realTranslatedText = text
+                            }
+                            areButtonsVisible = false
+                        },
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .weight(1f)
+                    ) {
+                        Text("실시간 번역")
+                    }
 
-                Button(
-                    onClick = {
-                        captureAndTranslateText(
-                            imageCapture,
-                            context,
-                            recognizer,
-                            translator
-                        ) { text, bitmap ->
-                            translatedText = text
-                            showCapturedImage = bitmap
-                        }
-                        areButtonsVisible = false
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Text("캡처 및 번역")
+                    Button(
+                        onClick = {
+                            captureAndTranslateText(
+                                imageCapture,
+                                context,
+                                recognizer,
+                                translator
+                            ) { text, bitmap ->
+                                translatedText = text
+                                showCapturedImage = bitmap
+                            }
+                            areButtonsVisible = false
+                        },
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .weight(1f)
+                    ) {
+                        Text("캡처 및 번역")
+                    }
                 }
             }
             if (realTranslatedText.isNotEmpty()) {
@@ -192,6 +200,7 @@ fun CameraTranslationScreen() {
                     color = Color.Black
                 )
             }
+            if (areButtonsVisible == false){
             Button(
                 onClick = {
                     showCapturedImage = null
@@ -204,6 +213,7 @@ fun CameraTranslationScreen() {
                     .padding(8.dp)
             ) {
                 Text("다시 카메라 실행")
+            }
             }
             Button(
                 onClick = {
@@ -306,10 +316,3 @@ private fun captureAndTranslateText(
         }
     )
 }
-//
-//private fun ImageProxy.toBitmap(): Bitmap {
-//    val buffer = planes[0].buffer
-//    val bytes = ByteArray(buffer.remaining())
-//    buffer.get(bytes)
-//    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-//}
