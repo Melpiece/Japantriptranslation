@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,8 +22,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +37,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -106,7 +114,8 @@ fun TranslationScreen() {
             .padding(WindowInsets.systemBars.asPaddingValues())
             .padding(top = 10.dp)
             .padding(horizontal = 8.dp)
-            .fillMaxSize(),
+            .fillMaxSize()
+            .verticalScroll(ScrollState(0)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -118,6 +127,19 @@ fun TranslationScreen() {
                 "번역",
                 fontSize = 35.sp,
                 fontWeight = FontWeight.ExtraBold
+            )
+            Icon(
+                painter = painterResource(R.drawable.back),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable {
+                        val activity = context as? Activity
+                        activity?.finish()
+                    }
+                    .size(40.dp),
+                tint = Color.Unspecified
+
             )
         }
         Column(
@@ -135,30 +157,39 @@ fun TranslationScreen() {
                     value = text,
                     onValueChange = { text = it },
                     label = { Text("입력") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(280.dp)
                 )
                 Box(modifier = Modifier
-                    .clickable { speechRecognizerLauncher.launch(createIntentSTT(sourceLanguage)) }){
+                    .clickable { speechRecognizerLauncher.launch(createIntentSTT(sourceLanguage)) }) {
                     AnimeLoader(R.raw.mic)
                 }
 
 
-
             }
 
         }
 
+        Icon(
+            painter = painterResource(R.drawable.updown),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(8.dp)
+                .clickable {
+                    val temp = sourceLanguage
+                    val temptext = text
+                    sourceLanguage = targetLanguage
+                    targetLanguage = temp
+                    text = newText
+                    newText = temptext
+                    isReady = false
+                }
+                .size(40.dp),
+            tint = Color.Unspecified
 
-        Button(
-            onClick = {
-                val temp = sourceLanguage
-                sourceLanguage = targetLanguage
-                targetLanguage = temp
-                isReady = false
-            }
-        ) {
-            Text("언어 변환 (현재: ${if (sourceLanguage == TranslateLanguage.KOREAN) "한→일" else "일→한"})")
-        }
+        )
+
         Button(
             onClick = {
                 krJpTranslator.translate(text)
@@ -182,7 +213,9 @@ fun TranslationScreen() {
                 value = newText,
                 onValueChange = { newText = it },
                 label = { Text("번역") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(280.dp)
             )
 //            Text("번역 \n $newText")
         }
@@ -199,16 +232,6 @@ fun TranslationScreen() {
             enabled = newText.isNotBlank()
         ) {
             Text("번역 결과 읽기")
-        }
-
-        Button(
-            onClick = {
-                val activity = context as? Activity
-                activity?.finish()
-            },
-            modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
-        ) {
-            Text(text = "뒤로가기")
         }
     }
 }
