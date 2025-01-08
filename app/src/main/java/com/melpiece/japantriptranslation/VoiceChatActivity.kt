@@ -162,8 +162,8 @@ fun VoiceChatScreen() {
         modifier = Modifier
             .fillMaxSize()
             .padding(WindowInsets.systemBars.asPaddingValues())
-            .padding(horizontal = 10.dp)
-            .padding(top = 10.dp),
+            .padding(horizontal = 10.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
@@ -181,7 +181,7 @@ fun VoiceChatScreen() {
                 label = { Text("日本語") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp),
+                    .height(320.dp),
             )
         }
         Spacer(
@@ -235,7 +235,7 @@ fun VoiceChatScreen() {
                 label = { Text("한국어") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .size(300.dp),
+                    .size(320.dp),
             )
         }
     }
