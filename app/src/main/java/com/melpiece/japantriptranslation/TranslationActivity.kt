@@ -136,22 +136,11 @@ fun TranslationScreen() {
                 fontSize = 35.sp,
                 fontWeight = FontWeight.ExtraBold
             )
-            Spacer(modifier = Modifier
-                .weight(1f))
-            Icon(
-                painter = painterResource(R.drawable.back),
-                contentDescription = null,
+            Spacer(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .clickable {
-                        val activity = context as? Activity
-                        activity?.finish()
-                    }
-
-                    .size(30.dp),
-                tint = Color.Unspecified
-
+                    .weight(1f)
             )
+            BackIcon()
         }
         Column(
             modifier = Modifier
