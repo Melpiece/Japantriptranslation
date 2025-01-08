@@ -107,6 +107,15 @@ fun TranslationScreen() {
             val spokenText =
                 result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0) ?: ""
             text = spokenText
+            if (isReady) {
+                krJpTranslator.translate(spokenText)
+                    .addOnSuccessListener { translatedText ->
+                        newText = translatedText
+                    }
+                    .addOnFailureListener {
+                        newText = "번역 실패"
+                    }
+            }
         }
     }
     Column(
