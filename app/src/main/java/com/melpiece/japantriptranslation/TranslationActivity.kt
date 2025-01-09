@@ -1,6 +1,7 @@
 package com.melpiece.japantriptranslation
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
@@ -125,35 +126,7 @@ fun TranslationScreen() {
             .verticalScroll(ScrollState(0)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-        ) {
-            Text(
-                "번역",
-                fontSize = 35.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Spacer(
-                modifier = Modifier
-                    .weight(1f)
-            )
-            Icon(
-                painter = painterResource(R.drawable.chat),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable {
-                        context.startActivity(
-                            Intent(context, VoiceChatActivity::class.java)
-                        )
-                    }
-                    .size(30.dp),
-                tint = Color.Unspecified
-            )
-            BackIcon()
-        }
+        TopBar(context)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -252,6 +225,39 @@ fun TranslationScreen() {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun TopBar(context: Context) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
+        Text(
+            "번역",
+            fontSize = 35.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        Spacer(
+            modifier = Modifier
+                .weight(1f)
+        )
+        Icon(
+            painter = painterResource(R.drawable.chat),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(8.dp)
+                .clickable {
+                    context.startActivity(
+                        Intent(context, VoiceChatActivity::class.java)
+                    )
+                }
+                .size(30.dp),
+            tint = Color.Unspecified
+        )
+        BackIcon()
     }
 }
 

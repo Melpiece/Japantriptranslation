@@ -166,24 +166,7 @@ fun VoiceChatScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .graphicsLayer {
-                    rotationZ = 180f
-                },
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            OutlinedTextField(
-                value = jptext,
-                onValueChange = { jptext = it },
-                label = { Text("日本語") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(320.dp),
-            )
-        }
+        JpTextFiled(jptext)
         Spacer(
             modifier = Modifier
                 .height(10.dp)
@@ -223,21 +206,50 @@ fun VoiceChatScreen() {
             modifier = Modifier
                 .height(10.dp)
         )
-        Column(
+        KrTextFiled(krtext)
+    }
+}
+
+@Composable
+private fun KrTextFiled(krtext: String) {
+    var krtext1 = krtext
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = krtext1,
+            onValueChange = { krtext1 = it },
+            label = { Text("한국어") },
             modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            OutlinedTextField(
-                value = krtext,
-                onValueChange = { krtext = it },
-                label = { Text("한국어") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .size(320.dp),
-            )
-        }
+                .fillMaxWidth()
+                .size(320.dp),
+        )
+    }
+}
+
+@Composable
+private fun JpTextFiled(jptext: String) {
+    var jptext1 = jptext
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                rotationZ = 180f
+            },
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = jptext1,
+            onValueChange = { jptext1 = it },
+            label = { Text("日本語") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(320.dp),
+        )
     }
 }
 
