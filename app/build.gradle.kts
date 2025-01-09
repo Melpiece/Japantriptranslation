@@ -67,6 +67,7 @@ dependencies {
     val lottieVersion = "6.6.2"
     implementation ("com.airbnb.android:lottie-compose:$lottieVersion")
     implementation ("com.google.maps.android:maps-compose:4.4.1")
+    implementation("androidx.core:core-splashscreen:1.0.0")
 }
 secrets {
     // To add your Maps API key to this project:

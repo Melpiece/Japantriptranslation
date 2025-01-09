@@ -54,7 +54,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             JapantriptranslationTheme {
-                MainScreen()
+                var showSplash by remember { mutableStateOf(true) }
+
+                if (showSplash) {
+                    SplashScreen {
+                        showSplash = false
+                    }
+                } else {
+                    MainScreen()
+                }
             }
         }
     }
@@ -76,7 +84,7 @@ fun MainScreen() {
             .verticalScroll(ScrollState(0)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically){
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 "Trip To JAPAN",
                 fontSize = 30.sp
@@ -109,8 +117,10 @@ fun MainScreen() {
         }
 
 
-        Row (modifier = Modifier
-            .height(intrinsicSize = IntrinsicSize.Max)){
+        Row(
+            modifier = Modifier
+                .height(intrinsicSize = IntrinsicSize.Max)
+        ) {
             Box(
                 modifier = Modifier
             ) {
@@ -133,7 +143,7 @@ fun MainScreen() {
 
                 Text("텍스트 번역")
             }
-            Box (
+            Box(
                 modifier = Modifier
                     .size(180.dp)
                     .clickable {
@@ -225,14 +235,15 @@ fun AnimeLoader(animelocation: Int, isPlay: Boolean = true, onFinish: () -> Unit
         progress = { progress },
         modifier = Modifier
     )
-    LaunchedEffect(isPlay,progress == 1.0f) {
-        if(progress == 1.0f) {
+    LaunchedEffect(isPlay, progress == 1.0f) {
+        if (progress == 1.0f) {
             onFinish()
         }
     }
 }
+
 @Composable
-fun InfiniteAnimeLoader(animelocation: Int){
+fun InfiniteAnimeLoader(animelocation: Int) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(animelocation))
     val progress by animateLottieCompositionAsState(
         composition = composition,
@@ -243,5 +254,25 @@ fun InfiniteAnimeLoader(animelocation: Int){
         progress = { progress },
         modifier = Modifier
     )
+}
+
+@Composable
+fun SplashScreen(onSplashFinished: () -> Unit) {
+    val isAnimating = remember { mutableStateOf(true) }
+    Column (modifier = Modifier
+        .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally){
+        AnimeLoader(R.raw.airplain, isPlay = true, onFinish = {
+            isAnimating.value = false
+            onSplashFinished()
+        })
+    }
+
+    LaunchedEffect(isAnimating.value) {
+        if (!isAnimating.value) {
+            onSplashFinished()
+        }
+    }
 }
 
