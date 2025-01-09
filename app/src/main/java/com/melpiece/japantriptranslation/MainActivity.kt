@@ -10,11 +10,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -38,6 +40,12 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.melpiece.japantriptranslation.ui.theme.JapantriptranslationTheme
 
 class MainActivity : ComponentActivity() {
@@ -68,25 +76,46 @@ fun MainScreen() {
             .verticalScroll(ScrollState(0)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            "Trip To JAPAN",
-            fontSize = 30.sp
-        )
-        Column(
-            modifier = Modifier
-                .size(300.dp)
-        ) {
-            AnimeLoader(R.raw.airplain, loader1, onFinish = {
-                loader1 = false
-                loader2 = true
-            })
+        Row(verticalAlignment = Alignment.CenterVertically){
+            Text(
+                "Trip To JAPAN",
+                fontSize = 30.sp
+            )
+            Column(
+                modifier = Modifier
+                    .size(60.dp)
+            ) {
+                AnimeLoader(R.raw.airplain, loader1, onFinish = {
+                    loader1 = false
+                    loader2 = true
+                })
+            }
         }
-        Row {
+
+        val japan = LatLng(35.6894, 139.692)
+        val cameraPositionState = rememberCameraPositionState {
+            position = CameraPosition.fromLatLngZoom(japan, 10f)
+        }
+        GoogleMap(
+            modifier = Modifier
+                .size(350.dp),
+            cameraPositionState = cameraPositionState
+        ) {
+            Marker(
+                state = MarkerState(position = japan),
+                title = "Japan",
+                snippet = "Marker in Japan"
+            )
+        }
+
+
+        Row (modifier = Modifier
+            .height(intrinsicSize = IntrinsicSize.Max)){
             Box(
                 modifier = Modifier
             ) {
                 Column(modifier = Modifier
-                    .size(200.dp)
+                    .size(180.dp)
                     .clickable {
                         context.startActivity(
                             Intent(
@@ -104,9 +133,9 @@ fun MainScreen() {
 
                 Text("텍스트 번역")
             }
-            Box(
+            Box (
                 modifier = Modifier
-                    .size(200.dp)
+                    .size(180.dp)
                     .clickable {
                         context.startActivity(
                             Intent(
